@@ -1,9 +1,9 @@
 
 
 class BasePage():
-    def __init__(self, driver, url):
+    def __init__(self, driver, link):
         self.driver = driver
-        self.url = url
+        self.link = link
 
     def open(self):
-        self.browser.get(self.url)
+        self.driver.get(self.link)
