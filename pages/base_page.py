@@ -1,5 +1,10 @@
 import math
-from selenium.common.exceptions import NoAlertPresentException
+from telnetlib import EC
+from selenium.common.exceptions import NoAlertPresentException, TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from .locators import BasePageLocators
+
 
 class BasePage():
     def __init__(self, driver, link):
@@ -22,3 +27,43 @@ class BasePage():
             alert.accept()
         except NoAlertPresentException:
             print("No second alert presented")
+
+    def is_not_element_present(self, how, what, timeout=4):
+        try:
+            WebDriverWait(self.driver, timeout).until(EC.presence_of_element_located((how, what)))
+        except TimeoutException:
+            return True
+
+        return False
+
+    def is_disappeared(self, how, what, timeout=4):
+        try:
+            WebDriverWait(self.driver, timeout, 1, TimeoutException). \
+                until_not(EC.presence_of_element_located((how, what)))
+        except TimeoutException:
+            return False
+
+        return True
+
+    def go_to_login_page(self):
+        link = self.driver.find_element(*BasePageLocators.LOGIN_LINK)
+        link.click()
+
+    def should_be_login_link(self):
+        assert self.driver.is_element_present(*BasePageLocators.LOGIN_LINK), "Login link is not presented"
+
+    def check_register_form(self):
+        assert self.driver.find_element(By.CSS_SELECTOR, '#register_form'), "Form register is not presented"
+
+    def check_login_form(self):
+        assert self.driver.find_element(By.CSS_SELECTOR, '#login_form'), "Form login is not presented"
+
+    def go_to_basket(self):
+        basket = self.driver.find_element(By.XPATH, "//a[@class='btn btn-default']")
+        basket.click()
+
+    def should_be_authorized_user(self):
+        assert self.is_element_present(*BasePageLocators.USER_ICON), "User icon is not presented," \
+                                                                     " probably unauthorised user"
+
+
